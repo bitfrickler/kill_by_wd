@@ -23,16 +23,22 @@ Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_
 _WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
 
 $processes = ProcessList()
-For $i = 0 To UBound($processes) - 1
+For $i = 2 To $processes[0][0] ;item at position 1 is "[System Process]"
 
     $process = $processes[$i][0]
     $pid = $processes[$i][1]
     $dir = _WinAPI_GetProcessWorkingDirectory($pid)
-    $cmdline = _WinAPI_GetProcessCommandLine($pid)
+    $cmdline = _WinAPI_GetProcessCommandLine($pid) 
 
-    if StringCompare($dir, $wd, 0) = 0 and StringInStr($cmdline, $pattern, 0) > 0 then
+    if StringCompare($dir, $wd, 0) = 0 and StringInStr($cmdline, $pattern, 0) > 0 and StringCompare($process, @ScriptName, 0) <> 0 then
+        
+        ;ConsoleWrite(@CRLF & "Working directory: " & $dir)
+        ;ConsoleWrite(@CRLF & "Command line: " & $cmdline)
+        
         ConsoleWrite(@CRLF & "Attempting to kill process " & $process & " (" & $pid & "): ")
+        
         ProcessClose($pid)
+
         if @error = 0 Then
             ConsoleWrite("Success")
         Else
